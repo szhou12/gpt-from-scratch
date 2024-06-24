@@ -57,8 +57,11 @@ def estimate_loss():
     """
     1. Average loss by 'eval_iters' times to make loss a lot less noisy.
     2. Switch model phases between 'model.eval()' and 'model.train()'.
-        Although phase-switching in our current BigramLanguageModel implementation has no effect because we don't have dropout or batch normalization layers, it is a good practice to switch the model phases. This is because it's always good to have in mind that what mode/phase your neural network is currently in because some layers will have different behaviors at training time or inference time.
-    3. @torch.no_grad(): context manager tells PyTorch that for everything happened inside the estimate_loss(), we will NOT call .backward() on (i.e., we don't intend to do backprop in this function. i.e., we don't intend to update weights here, simply measuring model's performance). This improves efficiency in memeory use in that PyTorch will not store the intermediate variables in the backward pass.
+        Although phase-switching in our current BigramLanguageModel implementation has no effect because we don't have dropout or batch normalization layers, it is a good practice to switch the model phases. 
+        This is because it's always good to have in mind that what mode/phase your neural network is currently in because some layers will have different behaviors at training time or inference time.
+    3. @torch.no_grad(): context manager tells PyTorch that for everything happened inside the estimate_loss(), we will NOT call .backward() on.
+                        i.e., we don't intend to do backprop in this function. i.e., we don't intend to update weights here, simply measuring model's performance 
+                        This improves efficiency in memeory use in that PyTorch will not store the intermediate variables in the backward pass.
     """
     out = {}
 
