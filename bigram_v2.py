@@ -7,8 +7,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 # hyperparameters
-batch_size = 32 # how many indepenedent sequences will we process in parallel?
-block_size = 8 # what is the maximum context length for predictions?
+batch_size = 32 # B = how many indepenedent sequences will we process in parallel?
+block_size = 8 # T = what is the maximum context length for predictions?
 max_iters = 3000
 eval_interval = 300
 learning_rate = 1e-2
@@ -93,6 +93,10 @@ class BigramLanguageModel(nn.Module):
         self.lm_head = nn.Linear(n_embd, vocab_size) # NOTE: v2 go from token embeddings to logits
 
     def forward(self, idx, targets=None):
+        '''
+        idx: (B,T) tensor of integer. data. xb from previous cell
+        targets (Optional): (B,T) tensor of integer. true y. yb from previous cell. Make it optional as generate() won't use loss.
+        '''
         B, T = idx.shape
 
         # idx and targets are both (B, T) tensor of integers
