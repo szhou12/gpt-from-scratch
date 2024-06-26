@@ -1,6 +1,6 @@
-###################################################
-# Python: Put All Above Into bigram.py [00:38:00] #
-###################################################
+############################################################
+# Python: Improve Using The Trick: bigram_v2.py [00:58:28] #
+############################################################
 
 import torch
 import torch.nn as nn
@@ -14,6 +14,7 @@ eval_interval = 300
 learning_rate = 1e-2
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
+n_embd = 32 # NOTE: v2 - number of embedding dimensions. 32 dimensional embeddings
 # ----------------
 
 # NOTE: For reproducibility
@@ -27,7 +28,7 @@ with open('input.txt', 'r', encoding='utf-8') as f:
 # NOTE: Get the encoder and decoder
 # here are all the unique characters that occur in this text
 chars = sorted(list(set(text)))
-vocab_size = len(chars)
+vocab_size = len(chars) # NOTE: vocab_size is already declared as a global var here
 # create a mapping from characters to integers
 stoi = { ch:i for i, ch in enumerate(chars)}
 itos = { i:ch for i, ch in enumerate(chars)}
@@ -82,14 +83,26 @@ def estimate_loss():
 
 # super simple bigram model
 class BigramLanguageModel(nn.Module):
-    def __init__(self, vocab_size): 
-        super().__init__(vocab_size)
+    def __init__(self): # NOTE: v2 takes out vocab_size as vocab_size already a global variable.
+        super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
-        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd) # NOTE: v2 switch to n_embd to introduce intermediate phase in order to make the model bigger
+        # add positional encoding
+        self.position_embedding_table = nn.Embedding(block_size, n_embd) # NOTE: v2 - each position from 0 to block_size-1 will get its own embedding vector of size n_embd
+        # lm_head = language modeling head
+        self.lm_head = nn.Linear(n_embd, vocab_size) # NOTE: v2 go from token embeddings to logits
 
     def forward(self, idx, targets=None):
+        B, T = idx.shape
+
         # idx and targets are both (B, T) tensor of integers
-        logits = self.token_embedding_table(idx) # (B, T, C)
+        # NOTE: v2 - get token embeddings instead
+        tok_emb = self.token_embedding_table(idx) # (B, T, C=n_embd)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=device)) # (T, C=n_embd)
+        # NOTE: v2 - x not only holds token identities but the positions where these tokens occur
+        x = tok_emb + pos_emb # (B, T, C=n_embd)
+        # NOTE: v2 - go from token embeddings to get logits
+        logits = self.lm_head(x) # (B, T, C=vocab_size)
 
         if targets is None:
             loss = None
