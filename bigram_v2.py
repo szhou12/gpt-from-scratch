@@ -86,8 +86,10 @@ class BigramLanguageModel(nn.Module):
     def __init__(self): # NOTE: v2 takes out vocab_size as vocab_size already a global variable.
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
+        # 表示把文本中所有单词单独向量化。 e.g. 假设这个字典一共有a-z这26个单词，每个单词向量化成长度=n_embd的vector
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd) # NOTE: v2 switch to n_embd to introduce intermediate phase in order to make the model bigger
         # add positional encoding
+        # 表示把"出现的位置信息"向量化。e.g. 出现在0号位的token，把“0号位”这个信息本身向量化成长度=n_embd的vector
         self.position_embedding_table = nn.Embedding(block_size, n_embd) # NOTE: v2 - each position from 0 to block_size-1 will get its own embedding vector of size n_embd
         # lm_head = language modeling head
         self.lm_head = nn.Linear(n_embd, vocab_size) # NOTE: v2 go from token embeddings to logits
