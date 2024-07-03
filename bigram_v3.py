@@ -32,7 +32,7 @@ vocab_size = len(chars) # NOTE: vocab_size is already declared as a global var h
 # create a mapping from characters to integers
 stoi = { ch:i for i, ch in enumerate(chars)}
 itos = { i:ch for i, ch in enumerate(chars)}
-encode = lambda s : [stoi[c] for c in s] # encoder: take a string, output a list of integers
+encode = lambda s : [stoi[c] for c in s] # encoder: take a string, output a list of integers (indices)
 decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
 
 # Train and Test splits
@@ -115,7 +115,7 @@ class BigramLanguageModel(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         # 表示把文本中所有单词单独向量化。 e.g. 假设这个字典一共有a-z这26个单词, 这26个单词每个都向量化成长度=n_embd的vector表示
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd) # NOTE: v2 switch to n_embd to introduce intermediate phase in order to make the model bigger
-        # add positional encoding
+        # add positional embedding (WARNING! This is position embedding, NOT position encoding!)
         # 表示把"出现的位置信息"向量化。e.g. 出现在0号位的token，把“0号位”这个信息本身向量化成长度=n_embd的vector
         self.position_embedding_table = nn.Embedding(block_size, n_embd) # NOTE: v2 - each position from 0 to block_size-1 will get its own embedding vector of size n_embd
         # NOTE: v3 - add self-attention head
